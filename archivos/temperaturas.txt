@@ -1,0 +1,10 @@
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-08-03/USA332_and_more/15-28/USA003.log:  0   1  DUW3001  OFF    ON     OFF     KDU127161/3    R4E    TU8X611983 20120420 45C  Active*
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-08-03/USA332_and_more/15-28/USA016.log:  0   1  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8XA32296 20130121 30C  Active*
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-08-03/USA332_and_more/15-28/USA033.log:  0   1  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8X993595 20121229 35C  Active*
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-08-03/USA332_and_more/15-28/USA033.log:  0   2  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8XA99132 20130228 35C  StandbyReady
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-08-03/USA332_and_more/15-28/USA332.log:  0   1  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8XA97259 20130228 38C  Active*
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-08-03/USA332_and_more/15-28/USA332.log:  0   2  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8XA97240 20130228 38C  StandbyReady
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-08-03/USA332_and_more/15-28/USA575.log:  0   1  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8XA85498 20130221 38C  Active*
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-08-03/USA332_and_more/15-28/USA575.log:  0   2  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8XA85488 20130221 41C  StandbyReady
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-08-03/USA332_and_more/15-28/USA626.log:  0   1  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8XA35928 20130123 34C  Active*
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-08-03/USA332_and_more/15-28/USA626.log:  0   2  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8XD26727 20130613 38C  StandbyReady

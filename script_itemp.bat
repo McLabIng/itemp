@@ -1,0 +1,1 @@
+/usr/local/Cellar/php55/5.5.36/bin/php -f /Users/Blackbird/Sites/itemp/script_itemp.php

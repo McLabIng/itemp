@@ -1,0 +1,2 @@
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-14/USA541.log:2015-10-30 18:11:42 M DlCeGracePeriodExpired              NodeBFunction=1 (LicencedCapacity=64)
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-14/USA541.log:2015-10-30 20:52:38 m UplinkBaseBandPool_UlHwLessThanUlCapacity Subrack=1,UplinkBaseBandPool=1 (configuration_or_customizing_error)

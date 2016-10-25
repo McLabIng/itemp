@@ -1,0 +1,22 @@
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/URS141.log:  0   1  DUW3001  OFF    ON     OFF     KDU127161/3    R4E    TU8X655443 20120524 39C  Active*
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/URS141.log:  0   2  DUW3001  OFF    ON     OFF     KDU127161/3    R4E    TU8X655525 20120524 40C  StandbyReady
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/URS157.log:  0   1  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8XA45597 20130128 41C  Active*
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/USA016.log:  0   1  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8XA32296 20130121 32C  Active*
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/USA111.log:  0   1  DUW3001  OFF    ON     OFF     KDU127161/3    R4E    C826039524 20120426 60C  Active*
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/USA130.log:  0   1  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8XD64865 20130628 39C  Active*
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/USA130.log:  0   2  DUW3001  OFF    ON     OFF     KDU127161/3    R4E/C  TU8X717945 20120712 37C  StandbyReady
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/USA197.log:  0   1  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8XA85462 20130221 44C  Active*
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/USA197.log:  0   2  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8XA85643 20130221 42C  StandbyReady
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/USA332.log:  0   1  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8XA97259 20130228 43C  Active*
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/USA332.log:  0   2  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8XA97240 20130228 43C  StandbyReady
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/USA541.log:  0   1  CBU1      OFF    ON     16HZ    ROJ1192209/1   R5G    TU8G086080 20080104 +41C Active*
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/USA541.log:  0   2  ET-MFX    OFF    ON     OFF     ROJ1192315/1   R7A    TU8G735396 20090125      
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/USA541.log:  0   4  RAX       OFF    ON     16HZ    ROJ1192187/14  R1D    TM15480753 20110322      
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/USA541.log:  0   5  RAX       OFF    ON     16HZ    ROJ1192187/14  R1C    AE58370460 20080625      
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/USA541.log:  0   6  RAX13     OFF    ON     16HZ    ROJ1192187/4   R1F    AE57434587 20080412      
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/USA541.log:  0   8  TX6HS-06  OFF    ON     16HZ    ROJ1192254/6   R1E    TM15270300 20100315      
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/USA541.log:  0   9  OBIF      OFF    ON     16HZ    ROJ1192238/22  R1D    TB39883996 20080303      
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/USA575.log:  0   1  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8XA85498 20130221 38C  Active*
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/USA575.log:  0   2  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8XA85488 20130221 40C  StandbyReady
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/USA626.log:  0   1  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8XA35928 20130123 37C  Active*
+/var/opt/ericsson/amos/moshell_logfiles/excsleiv/logs_mobatch/2016-06-22/USA332_and_more/16-12/USA626.log:  0   2  DUW3001  OFF    ON     OFF     KDU127161/3    R4F    TU8XD26727 20130613 40C  StandbyReady
