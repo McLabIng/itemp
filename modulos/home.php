@@ -144,7 +144,7 @@ $lista_tipo_rectificador = tipo_rectificador::listado_tipo_rectificador();
         var oTable = $('#editable').DataTable({
         "paging":   false,
         "ordering": false,
-        "info": false,
+        // "info": false,
         // "filter": false,
         "scrollY": "600px",
         // "scrollCollapse": true,
