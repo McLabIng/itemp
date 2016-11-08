@@ -25,6 +25,9 @@ require_once 'clases/datos_empresa.php';
     <link href="css/plugins/slick/slick.css" rel="stylesheet">
     <link href="css/plugins/slick/slick-theme.css" rel="stylesheet">
 
+    <link href="css/plugins/chosen/bootstrap-chosen.css" rel="stylesheet">
+    <link href="css/plugins/switchery/switchery.css" rel="stylesheet">
+
     <!-- Data Tables -->
     <link href="css/plugins/dataTables/datatables.min.css" rel="stylesheet">
 

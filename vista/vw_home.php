@@ -1,11 +1,14 @@
 <?php
 class vw_home {
 
-    public static function lista_top_recurrentes(){
+    public static function lista_top_recurrentes($lista_tipo_rectificador){
         $lista_top_recurrentes = vm_grafico_temperaturas::traer_temperaturas();
         $listado_sitios = sitios_temperatura::traer_sitios_totales();
         ?>
         <div class="ibox-title col-md-12 ui-widget-header blue-bg">
+            <?php
+            vw_home::agregar_sitio($lista_tipo_rectificador);
+            ?>
             <!-- <button class="pull-right btn btn-md btn-primary"><i class="fa fa-file-excel-o"></i></button> -->
             <input class="pull-right" type="text" id="myInputTextField" placeholder=" BUSCAR">
             <h4 class="p-xxs">Top Sitios con alarmas recurrentes</h4>
@@ -197,6 +200,98 @@ class vw_home {
             $active = "";
         }
         // echo '  <a class="btn btn-success btn-outline btn-xs" href="?mod=historial&sitio='.$dato['COD_SITIO'].'"><i class="fa fa-search"></i>&nbsp;Ver</a>';
+    }
+
+    public static function agregar_sitio(array $lista_tipo_rectificador){
+        ?>
+        <a href="#modal-agregar-sitio"  data-toggle="modal" class="btn btn-primary btn-sm pull-right m-l-sm">Agregar Sitio</a>
+        <!--- MODAL -->
+        <div id="modal-agregar-sitio" class="modal fade" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12 m-t-sm">
+                                <form role="form" method="post" action="" id="maskForm">
+                                    <h3 class="m-b-n-xs text-center">Agregar Sitio</h3>
+                                    <div class="hr-line-dashed col-md-12"></div>
+
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label >Sitio</label>
+                                            <input id="sitio" name="sitio" type="text" class="form-control" placeholder="" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-9">
+                                        <div class="form-group">
+                                            <label>Nombre Sitio</label>
+                                            <input id="nombre_sitio" name="nombre_sitio" type="text" class="form-control" placeholder="" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="hr-line-dashed col-md-12"></div>
+
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label>IP Sitio</label>
+                                            <input id="ip" name="ip" type="text" class="ip_address form-control" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label>WISE Sitio</label>
+                                            <input id="ipwise" name="ipwise" type="text" class="ip_wise form-control">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label>Tipo Rectificador</label>
+                                            <select data-placeholder="Selecciona Tipo Rectificador" name="cod_tipo_rectificador" id="cod_tipo_rectificador" class="chosen_select_tipo_rectificador" required>
+                                                <option></option>
+                                                <option value="1">SC200</option>
+                                                <option value="2">SM45</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12 m-b-sm">
+                                        <input type="hidden" name="accion" value="agregar_sitio">
+                                        <button class="btn btn-sm btn-primary pull-right m-t-n-xs demo2" type="submit"><strong>Agregar</strong></button>
+                                    </div>
+                                    <?php
+                                    $action = $_POST["accion"];
+                                    if ($action == "agregar_sitio") {
+                                        $sitio = strtoupper($_POST["sitio"]);
+                                        $nombre_sitio = strtoupper($_POST['nombre_sitio']);
+                                        $ip = $_POST['ip'];
+                                        $wise = $_POST['ipwise']; 
+                                        $cod_tipo_rectificador = $_POST['cod_tipo_rectificador'];
+
+                                        if (!sitios_temperatura::comprobar_sitio($sitio, $nombre_sitio, $ip, $wise, $cod_tipo_rectificador)){
+                                            if (!sitios_temperatura::Asociar_sitio($sitio, $nombre_sitio, $ip, $wise, $cod_tipo_rectificador)){
+                                                echo "Error de ingreso de sitio -- Favor chequear o avisar a soporte";
+                                            }
+                                            else {
+                                                echo '<script type="text/javascript">window.location="?mod=home"</script>';
+                                            }
+                                        }
+                                        else {
+                                            echo "Error de ingreso de sitio -- Observacion ya existe";
+                                        }
+                                    }
+                                    ?>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>       
+        <?php
     }
 
 }

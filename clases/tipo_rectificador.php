@@ -36,5 +36,13 @@ class tipo_rectificador {
             return false;
         }
     }
+
+    public static function listado_tipo_rectificador(){
+        $conexion = new Conexion();
+        $consulta = $conexion->prepare('SELECT COD_TIPO_RECTIFICADOR, TIPO_RECTIFICADOR FROM ' . self::TABLA );
+        $consulta->execute();
+        $registro = $consulta->fetchAll();
+        return $registro;
+    }
 }
 

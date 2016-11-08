@@ -4,6 +4,7 @@ require_once 'clases/usuario.php';
 require_once 'clases/vm_grafico_temperaturas.php';
 require_once 'vista/vw_home.php';
 require_once 'clases/sitios_temperatura.php';
+require_once 'clases/tipo_rectificador.php';
 
 $Fecha=getdate();
 $Anio=$Fecha["year"];
@@ -25,6 +26,7 @@ foreach ($cod_sitios as $sitio) {
     }   
 }
 
+$lista_tipo_rectificador = tipo_rectificador::listado_tipo_rectificador();
 
 ?>
 <script type="text/javascript">
@@ -58,7 +60,7 @@ foreach ($cod_sitios as $sitio) {
         <div class="col-lg-5 col-md-12">
             <div  class="ibox float-e-margins">
                 <?php
-                    vw_home::lista_top_recurrentes();
+                    vw_home::lista_top_recurrentes($lista_tipo_rectificador);
                 ?>
             </div>
         </div>
@@ -73,8 +75,10 @@ foreach ($cod_sitios as $sitio) {
                         vw_home::ver_grafico_diario();
                         ?>
                     </div>
-                    <!-- <canvas id="sitio_base" height="600" width="1200"></canvas> -->
-                    <div id="chartdiv" style="width: 100%; height: 400px;"></div>
+                    <canvas id="sitio_base" height="600" width="1200"></canvas>
+                    <!-- <div id="chartdiv" style="width: 100%; height: 400px;"> -->
+                        
+                    <!-- </div> -->
                 </div>
             </div>
         </div>
@@ -109,38 +113,64 @@ foreach ($cod_sitios as $sitio) {
 
 <script src="js/plugins/masonary/masonry.pkgd.min.js"></script>
 
-<!-- Exportar Excel -->
-<!-- <script src="js/plugins/excel/jquery.table2excel.js"></script> -->
+<!-- Chosen -->
+<script src="js/plugins/chosen/chosen.jquery.js"></script>
 
-<!-- slick carousel-->
-<!-- <script src="js/plugins/slick/slick.min.js"></script> -->
+<!-- Switchery -->
+<script src="js/plugins/switchery/switchery.js"></script>
+
+<!-- MENU -->
+<script src="js/plugins/metisMenu/jquery.metisMenu.js"></script>
 
 <!-- amchart-->
 <script src="js/plugins/amcharts/amcharts.js" type="text/javascript"></script>
 <script src="js/plugins/amcharts/serial.js" type="text/javascript"></script>
 
 <script src="js/plugins/chartJs/Chart.bundle.js"></script>
-<!-- <script src="js/plugins/chartJs/Chart.min.js"></script> -->
-<!-- <script src="js/plugins/chartJs/jquery.min.js"></script> -->
 
-<!-- Script para exportar a Excel -->
-<!-- <script>
-    $("button").click(function(){
-        $("#editable").table2excel({
-            // exclude CSS class
-            exclude: ".noExl",
-            name: "Sitios recurrentes",
-            filename: "Sitios recurrentes"
+<!-- Input Mask -->
+<script src="js/plugins/ip/jquery.mask.min.js"></script>
 
-        });
+<script>    
+    // Chosen
+    $('.chosen_select_tipo_rectificador').chosen({
+        width: "100%",
+        disable_search: true
     });
-</script> -->
 
-<!--##### Gráficos #####-->
-<script>
+    //EDITABLE
+    $(document).ready(function(){
+        /* Init DataTables */
+        var oTable = $('#editable').DataTable({
+        "paging":   false,
+        "ordering": false,
+        "info": false,
+        // "filter": false,
+        "scrollY": "600px",
+        // "scrollCollapse": true,
+        "order": [[ 1, "desc" ]],
+        "aoColumns": [
+            null,
+            { "orderSequence": [ "desc", "asc" ] },
+        ],
+        // "dom": "<'row'<'col-sm-6'l><'col-sm-6'f>>t<'row'<'col-sm-6'i><'col-sm-6'p>>",
+        // "lengthMenu": [ [6, 25, 50, -1], [6, 25, 50, "All"] ],
+        // "iDisplayLength": 20,
+        });
+
+        $('#myInputTextField').keyup(function(){
+            oTable.search($(this).val()).draw() ;
+        });
+
+        // Input Mask
+        $('.ip_address').mask('0ZZ.0ZZ.0ZZ.0ZZ', {translation:  {'Z': {pattern: /[0-9]/, optional: true}}});
+        $('.ip_wise').mask('0ZZ.0ZZ.0ZZ.0ZZ', {translation:  {'Z': {pattern: /[0-9]/, optional: true}}});
+
+    });
+
+    // ##### Gráficos #####
     <?php
-
-    $var = ${'data_temp_'.$cod_sitios[0]};
+        $var = ${'data_temp_'.$cod_sitios[0]};
         echo " 
         var config = {
             labels: ["; foreach($var as $datos){$date = date("M-d H:i", strtotime($datos[1])); echo " '".$date."',";} echo "],
@@ -307,10 +337,8 @@ foreach ($cod_sitios as $sitio) {
             });
         });
         ";}?>
-</script>
 
-<!--##### Gráficos AM Charts #####-->    
-<script>
+    //##### Gráficos AM Charts ##### 
     var alerta = 28;
     var graph;
     var chart;
@@ -493,9 +521,8 @@ foreach ($cod_sitios as $sitio) {
         // WRITE
         chart.write("chartdiv");
     });
-</script>
 
-<script>
+
     // <?php
 
     // foreach ($cod_sitios as $sitio) {
@@ -683,56 +710,4 @@ foreach ($cod_sitios as $sitio) {
     //     });';
     // }
     // ?>
-</script>
-
-<!-- Script para scroll de la sección "Tabla de temperaturas" -->
-<!-- <script>
-    $(document).ready(function () {
-        // Add slimscroll to element
-        $('.scroll_content').slimscroll({
-            height: '598px',
-            // height: 'relative',
-            opacity: 0.1,
-            wheelStep : 10,
-        })});
-</script> -->
-
-<!-- <script>
-    $(document).ready(function(){
-        $('.slick').slick({
-            dots: true
-        });
-    });
-</script> -->
-
-<script>
-    $(document).ready(function(){
-        /* Init DataTables */
-        var oTable = $('#editable').DataTable({
-        "paging":   false,
-        "ordering": false,
-        "info": false,
-        // "filter": false,
-        "scrollY": "600px",
-        // "scrollCollapse": true,
-        "order": [[ 1, "desc" ]],
-        "aoColumns": [
-            null,
-            { "orderSequence": [ "desc", "asc" ] },
-        ],
-        // "dom": "<'row'<'col-sm-6'l><'col-sm-6'f>>t<'row'<'col-sm-6'i><'col-sm-6'p>>",
-        // "lengthMenu": [ [6, 25, 50, -1], [6, 25, 50, "All"] ],
-        // "iDisplayLength": 20,
-        });
-
-
-        $('#myInputTextField').keyup(function(){
-            oTable.search($(this).val()).draw() ;
-        });
-    });
-</script>
-<style type="text/css">
-.dataTables_filter {
-     display: none;
-}
-</style> 
+    </script>

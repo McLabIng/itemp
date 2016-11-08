@@ -169,5 +169,47 @@ class sitios_temperatura {
         return $registros;
     }
 
+    public static  function comprobar_sitio($sitio, $nombre_sitio, $ip, $wise, $cod_tipo_rectificador){
+        $conexion = new Conexion();
+        $consulta = $conexion->prepare('SELECT * FROM ' . self::TABLA .' 
+                                        WHERE SITIO = :sitio
+                                        AND NOMBRE_SITIO = :nombre_sitio
+                                        AND IP = :ip
+                                        AND WISE = :wise
+                                        AND COD_TIPO_RECTIFICADOR = :cod_tipo_rectificador
+                                        ');
+        $consulta->bindParam(':sitio', $sitio, PDO::PARAM_STR);
+        $consulta->bindParam(':nombre_sitio', $nombre_sitio, PDO::PARAM_STR);
+        $consulta->bindParam(':ip', $ip);
+        $consulta->bindParam(':wise', $wise);
+        $consulta->bindParam(':cod_tipo_rectificador', $cod_tipo_rectificador, PDO::PARAM_INT);
+        $consulta->execute();
+        $registro = $consulta->fetch();
+        if($registro){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public static function Asociar_sitio($sitio, $nombre_sitio, $ip, $wise, $cod_tipo_rectificador){
+        $conexion = new Conexion();
+        $consulta = $conexion->prepare('insert into ' . self::TABLA .' (SITIO, NOMBRE_SITIO, IP, WISE, COD_TIPO_RECTIFICADOR)
+                                        values (:sitio, :nombre_sitio, :ip, :wise, :cod_tipo_rectificador)');
+        $consulta->bindParam(':sitio', $sitio, PDO::PARAM_STR);
+        $consulta->bindParam(':nombre_sitio', $nombre_sitio, PDO::PARAM_STR);
+        $consulta->bindParam(':ip', $ip);
+        $consulta->bindParam(':wise', $wise);
+        $consulta->bindParam(':cod_tipo_rectificador', $cod_tipo_rectificador, PDO::PARAM_INT);
+        if ($consulta->execute()){
+            $conexion = null;
+            return true;
+        }
+        else {
+            $conexion = null;
+            return false;
+        }
+    }
+
 }
 
