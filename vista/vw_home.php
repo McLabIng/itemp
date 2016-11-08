@@ -219,7 +219,7 @@ class vw_home {
                                     <div class="col-sm-3">
                                         <div class="form-group">
                                             <label >Sitio</label>
-                                            <input id="sitio" name="sitio" type="text" class="form-control" placeholder="" required>
+                                            <input id="sitio" name="sitio" type="text" class="form-control" placeholder="ej: USA123" required>
                                         </div>
                                     </div>
 
@@ -249,7 +249,7 @@ class vw_home {
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <label>Tipo Rectificador</label>
-                                            <select data-placeholder="Selecciona Tipo Rectificador" name="cod_tipo_rectificador" id="cod_tipo_rectificador" class="chosen_select_tipo_rectificador" required>
+                                            <select data-placeholder="Selecciona" name="cod_tipo_rectificador" id="cod_tipo_rectificador" class="chosen_select_tipo_rectificador" required>
                                                 <option></option>
                                                 <option value="1">SC200</option>
                                                 <option value="2">SM45</option>
