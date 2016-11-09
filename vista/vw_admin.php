@@ -29,7 +29,7 @@ class vw_admin {
                             ';
                             echo ' <td class="col-md-1">'.$resultado["SITIO"].'</td>
                             ';
-                            echo ' <td class="col-md-3">'.$resultado["NOMBRE_SITIO"].'</td>
+                            echo ' <td class="col-md-3"><a href="?mod=historial&cod_sitio='.$resultado['COD_SITIO'].'">'.$resultado["NOMBRE_SITIO"].'</a></td>
                             ';
                             echo ' <td class="col-md-1"><a href="http://'.$resultado["IP"].'" target="_blank">'.$resultado["IP"].'</td>
                             ';
