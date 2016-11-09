@@ -32,7 +32,7 @@ $listado_sitios = sitios_temperatura::traer_listado_sitios_totales();
             <div class="ibox-title col-md-12 ui-widget-header blue-bg">
                 <h4 class="p-xxs">Listado de Sitios</h4>
             </div>
-            <div class="ibox-content">
+            <div class="ibox-content col-md-12">
                 <?php
                 vw_admin::lista_sitios($listado_sitios);
                 ?>

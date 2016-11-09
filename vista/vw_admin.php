@@ -12,8 +12,8 @@ class vw_admin {
                             <th class="col-md-3">Nombre Sitio</th>
                             <th class="col-md-1">IP</th>
                             <th class="col-md-1">WISE</th>
-                            <th class="col-md-1" style="text-align: center">Activo</th>
-                            <th></th>
+                            <th class="col-md-1" style="text-align: center">Activo / Inactivo</th>
+                            <!-- <th></th> -->
                         </tr>
                     </thead>
                     <tbody>
@@ -37,8 +37,8 @@ class vw_admin {
                             ';
                             echo ' <td class="col-md-1" style="text-align: center"><input type="checkbox" class="switch_'.$resultado['SITIO'].'" '.$check.' id="id_'.$resultado['SITIO'].'" name="id_'.$resultado['SITIO'].'" /></td>
                             ';
-                            echo ' <td class="col-sm-1" style="text-align: center"><a class="btn btn-success btn-outline btn-xs" href=""><i class="fa fa-edit"></i></a></td>
-                            ';
+                            // echo ' <td class="col-sm-1" style="text-align: center"><a class="btn btn-success btn-outline btn-xs" href=""><i class="fa fa-edit"></i></a></td>
+                            // ';
                             echo ' </tr>
                             ';
                         }
