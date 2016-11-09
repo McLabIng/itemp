@@ -34,8 +34,10 @@ class vw_home {
 
                 foreach($lista_top_recurrentes as $resultado):
                     // Condicional para alarmas de la DUW 1
-                    if ($resultado['TEMP_DUW_1'] > 50 || $resultado['TEMP_DUW_2'] < 0) {
+                    if ($resultado['TEMP_DUW_1'] > 65) {
                         $alarma_duw1= 'coloralarm-2';
+                    } elseif ($resultado['TEMP_DUW_1'] > 50) {
+                        $alarma_duw1= 'yellow-bg';
                     }else {
                         $alarma_duw1= '';
                     }
@@ -44,8 +46,11 @@ class vw_home {
                     if ($resultado['TEMP_DUW_2'] == "0") {
                         $duw_2 = "-";
 						$alarma_duw2= '';
-                    } elseif ($resultado['TEMP_DUW_2'] > 50 || $resultado['TEMP_DUW_2'] < 0) {
+                    } elseif ($resultado['TEMP_DUW_2'] > 65) {
                         $alarma_duw2= 'coloralarm-2';
+                        $duw_2 = $resultado['TEMP_DUW_2'].' ºC';
+                    } elseif ($resultado['TEMP_DUW_2'] > 50) {
+                        $alarma_duw2= 'yellow-bg';
                         $duw_2 = $resultado['TEMP_DUW_2'].' ºC';
                     } else {
                         $alarma_duw2= '';
@@ -71,12 +76,12 @@ class vw_home {
                         $wise = $resultado['TEMP_WISE'].' ºC';
                     }
 					
-					if ($dato['UBICACION_BATERIA'] == 1) {
-                        $ubicacion = 'EL MISMO';
-                        $label_gabinete = 'label-success';
-                    } else {
-                        $ubicacion = 'DISTINTO';
-                        $label_gabinete = 'label-default';}
+					// if ($dato['UBICACION_BATERIA'] == 1) {
+     //                    $ubicacion = 'EL MISMO';
+     //                    $label_gabinete = 'label-success';
+     //                } else {
+     //                    $ubicacion = 'DISTINTO';
+     //                    $label_gabinete = 'label-default';}
 
                     // if ($i == $sites) {
                     //     $segunda_columna = '
