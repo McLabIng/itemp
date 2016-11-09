@@ -5287,8 +5287,8 @@ dd.project-people {
 }
 .project-list table tr td {
   border-top: none;
-  /*border-bottom: 3px solid #e7eaec;*/
-  border-bottom: 3px solid rgba(10, 115, 185, 0.08);
+  border-bottom: 3px solid #e7eaec;
+  /*border-bottom: 3px solid rgba(10, 115, 185, 0.08);*/
   padding: 15px 5px;
   vertical-align: middle;
 }

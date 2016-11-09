@@ -33,6 +33,7 @@ require_once 'clases/datos_empresa.php';
 
     <link href="css/animate.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+    <link href="css/custom.css" rel="stylesheet">
 
 </head>
 
@@ -71,7 +72,7 @@ if  (isset($_SESSION["username"])){
         $grupo2 = "";
 
         echo ' <li><a href="?mod=home"><i class="fa fa-area-chart"></i><span class="nav-label">Temperaturas</span></a></li>';
-        // echo ' <li><a href="?mod=historial"><i class="fa fa-area-chart"></i><span class="nav-label">Historial</span></a></li>';
+        echo ' <li><a href="?mod=admin"><i class="fa fa-gears"></i><span class="nav-label">Administración</span></a></li>';
         // foreach($menu as $resultados):
         // if ($resultados['GRUPO']==''){
         //     if ($grupo2 <> ""){

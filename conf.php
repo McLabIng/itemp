@@ -27,7 +27,12 @@ $conf['home'] = array(
 		'archivo' => 'home.php',
 		'layout' => LAYOUT_DEFECTO );
 $conf['historial'] = array(
-	'archivo' => 'historial.php' );
+	'archivo' => 'historial.php',
+	'layout' => LAYOUT_DEFECTO );
+$conf['admin'] = array(
+	'archivo' => 'admin.php',
+	'layout' => LAYOUT_DEFECTO );
+
 //Sitios
 $conf['sitios'] = array(
 	'archivo' => 'sitios.php' );

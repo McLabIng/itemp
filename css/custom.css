@@ -6,3 +6,19 @@
   background-color: #ffb70a;
   color: #ffffff;
 }
+
+.project-list table tr td {
+  border-top: none;
+  /*border-bottom: 3px solid #e7eaec;*/
+  border-bottom: 3px solid rgba(10, 115, 185, 0.08);
+  padding: 15px 5px;
+  vertical-align: middle;
+}
+
+.project-list-2 table tr td {
+  border-top: none;
+  border-bottom: 3px solid #e7eaec;
+  /*border-bottom: 3px solid rgba(10, 115, 185, 0.08);*/
+  padding: 5px 5px;
+  vertical-align: middle;
+}

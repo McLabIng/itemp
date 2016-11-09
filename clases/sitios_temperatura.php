@@ -74,7 +74,7 @@ class sitios_temperatura {
     public static function traer_sitio($cod_sitio){
         $conexion = new Conexion();
         $consulta = $conexion->prepare('SELECT COD_SITIO, SITIO, NOMBRE_SITIO, IP, WISE, COD_TIPO_RECTIFICADOR, TEMP_DUW_1, TEMP_DUW_2,
-                                TEMP_RECTIFICADOR, TEMP_WISE, EN_ESTUDIO
+                                TEMP_RECTIFICADOR, TEMP_WISE, EN_ESTUDIO, ACTIVO
 								FROM
 								' . self::TABLA .'
 								WHERE
@@ -84,7 +84,7 @@ class sitios_temperatura {
         $registro = $consulta->fetch();
         if($registro){
             return new self($registro['COD_SITIO'], $registro['SITIO'], $registro['NOMBRE_SITIO'],$registro['IP'],$registro['WISE'],$registro['COD_TIPO_RECTIFICADOR'],
-                $registro['TEMP_DWU_1'], $registro['TEMP_DWU_2'], $registro['TEMP_RECTIFICADOR'],$registro['TEMP_WISE'],$registro['EN_ESTUDIO']);
+                $registro['TEMP_DWU_1'], $registro['TEMP_DWU_2'], $registro['TEMP_RECTIFICADOR'],$registro['TEMP_WISE'],$registro['EN_ESTUDIO'],$registro['ACTIVO']);
         }else{
             return false;
         }
@@ -201,6 +201,41 @@ class sitios_temperatura {
         $consulta->bindParam(':ip', $ip);
         $consulta->bindParam(':wise', $wise);
         $consulta->bindParam(':cod_tipo_rectificador', $cod_tipo_rectificador, PDO::PARAM_INT);
+        if ($consulta->execute()){
+            $conexion = null;
+            return true;
+        }
+        else {
+            $conexion = null;
+            return false;
+        }
+    }
+
+    public static function  traer_listado_sitios_totales(){
+        $conexion = new Conexion();
+        $consulta = $conexion->prepare('SELECT * FROM '.self::TABLA.' ORDER BY ACTIVO DESC, NOMBRE_SITIO ASC' );
+        $consulta->execute();
+        $registros = $consulta->fetchAll();
+        return $registros;
+    }
+
+    public static function Actualizar_sitios($sitio,$nombre_sitio,$ip,$ip_wise,$estudio,$activo){
+        $conexion = new Conexion();
+        $consulta = $conexion->prepare('UPDATE ' . self::TABLA .'
+                                SET
+                                SITIO = :sitio,
+                                NOMBRE_SITIO = :nombre_sitio,
+                                IP = :ip,
+                                WISE = :ip_wise,
+                                EN_ESTUDIO = :estudio,
+                                ACTIVO = :activo
+                                WHERE SITIO = :sitio ');
+        $consulta->bindParam(':sitio', $sitio);
+        $consulta->bindParam(':nombre_sitio', $nombre_sitio);
+        $consulta->bindParam(':ip', $ip);
+        $consulta->bindParam(':ip_wise', $ip_wise);
+        $consulta->bindParam(':estudio', $estudio);
+        $consulta->bindParam(':activo', $activo);
         if ($consulta->execute()){
             $conexion = null;
             return true;
