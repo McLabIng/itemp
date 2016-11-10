@@ -22,3 +22,7 @@
   padding: 5px 5px;
   vertical-align: middle;
 }
+
+.dataTables_filter {
+     display: none;
+}
