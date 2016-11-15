@@ -31,6 +31,9 @@ require_once 'clases/datos_empresa.php';
     <!-- Data Tables -->
     <link href="css/plugins/dataTables/datatables.min.css" rel="stylesheet">
 
+    <link href="css/plugins/datapicker/datepicker3.css" rel="stylesheet">
+
+
     <link href="css/animate.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
     <link href="css/custom.css" rel="stylesheet">

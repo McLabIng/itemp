@@ -132,6 +132,18 @@ class vw_historial {
     public static function lista_temperaturas($cod_sitio){
         $lista_top_recurrentes = vm_grafico_temperaturas::traer_temperaturas_duw($cod_sitio);
         // $listado_sitios = sitios_temperatura::traer_sitios_totales();
+        $fecha_a = date('');
+        $fecha_b = date('d-m-Y');
+        
+        echo'
+        <div class="form-group col-md-offset-4" id="data">
+            <label class="font-noraml">Seleccione rango de fechas de ingreso de solicitud a filtrar</label>
+            <div class="input-daterange input-group" id="datepicker">
+                <input type="text" class="input-sm form-control" name="min" id="min" value="'.$fecha_a.'"/>
+                <span class="input-group-addon">al</span>
+                <input type="text" class="input-sm form-control" name="max" id="max" value="'.$fecha_b.'" />
+            </div>
+        </div>';
         ?>
         <div class="table-responsive project-list-2 col-md-12">
             <table class="table table-hover" id="editable">
@@ -149,15 +161,16 @@ class vw_historial {
                 <tbody>
                     <?php
                         foreach($lista_top_recurrentes as $resultado):
-                        echo '  <tr>';
-                            echo '  <td class="col-md-2">'.$resultado['SITIO'].'</td>';
-                            echo '  <td class="col-md-3">'.$resultado['NOMBRE_SITIO'].'</td>';
-                            echo '  <td class="col-md-3">'.$resultado['FECHA'].'</td>';
-                            echo '  <td class="col-md-1">'.$resultado['TEMP_DUW_1'].'</td>';
-                            echo '  <td class="col-md-1">'.$resultado['TEMP_DUW_2'].'</td>';
-                            echo '  <td class="col-md-1">'.$resultado['TEMP_RECTIFICADOR'].'</td>';
-                            echo '  <td class="col-md-1">'.$resultado['TEMP_WISE'].'</td>';
-                        echo '  </tr>'; 
+                            $fecha_ingreso = date("d-m-Y H:i:s", strtotime($resultado['FECHA']));
+                            echo '  <tr>';
+                                echo '  <td class="col-md-2">'.$resultado['SITIO'].'</td>';
+                                echo '  <td class="col-md-3">'.$resultado['NOMBRE_SITIO'].'</td>';
+                                echo '  <td class="col-md-3">'.$fecha_ingreso.'</td>';
+                                echo '  <td class="col-md-1">'.$resultado['TEMP_DUW_1'].'</td>';
+                                echo '  <td class="col-md-1">'.$resultado['TEMP_DUW_2'].'</td>';
+                                echo '  <td class="col-md-1">'.$resultado['TEMP_RECTIFICADOR'].'</td>';
+                                echo '  <td class="col-md-1">'.$resultado['TEMP_WISE'].'</td>';
+                            echo '  </tr>'; 
                         endforeach;
                     ?>
                 </tbody>

@@ -114,8 +114,8 @@ foreach ($lista_top_recurrentes as $value) {
 
 <script src="js/plugins/masonary/masonry.pkgd.min.js"></script>
 
-<!-- Exportar Excel -->
-<script src="js/plugins/excel/jquery.table2excel.js"></script>
+<!-- Data picker -->
+<script type="text/javascript" src="js/plugins/datapicker/bootstrap-datepicker.js"></script>
 
 <!-- slick carousel-->
 <script src="js/plugins/slick/slick.min.js"></script>
@@ -326,24 +326,61 @@ foreach ($lista_top_recurrentes as $value) {
 </script>
 
 <script>
+    /* Función para el filtro de fechas */
+    jQuery.fn.dataTableExt.afnFiltering.push(
+        function( oSettings, aData, iDataIndex ) {
+            var iMin = document.getElementById('min').value;
+            var iMax = document.getElementById('max').value;
+
+            var iMinimo_year = iMin.substring(6,10);
+            var iMinimo_month = iMin.substring(3,5);
+            var iMinimo_day = iMin.substring(0,2);
+            var iMinimo = iMinimo_year.concat(iMinimo_month,iMinimo_day);
+
+            var iMaximo_year = iMax.substring(6,10);
+            var iMaximo_month = iMax.substring(3,5);
+            var iMaximo_day = iMax.substring(0,2);
+            var iMaximo = iMaximo_year.concat(iMaximo_month,iMaximo_day);
+
+            var iCol = 2;
+            var iDate_year = aData[iCol].substring(6,10);
+            var iDate_month = aData[iCol].substring(3,5);
+            var iDate_day = aData[iCol].substring(0,2);
+            var iDate = iDate_year.concat(iDate_month,iDate_day);
+            
+            if ((iMinimo === "" && iMaximo === "") || (iMinimo <= iDate && iMaximo === "") || (iMinimo === "" && iMaximo >= iDate) || (iMinimo <= iDate && iMaximo >= iDate)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    );
+
     $(document).ready(function(){
+
+        $('#data .input-daterange').datepicker({
+            todayBtn: "linked",
+            keyboardNavigation: false,
+            forceParse: false,
+            autoclose: true,
+            format: "dd-mm-yyyy",
+        });
+
         /* Init DataTables */
         var oTable = $('#editable').DataTable({
-            // "paging":   true,
-            // "ordering": false,
-            // "info": false,
-            // "filter": false,
-            // "scrollY": "600px",
-            // "scrollCollapse": true,
-            // "order": [[ 1, "desc" ]],
-            // "aoColumns": [
+            // paging:   true,
+            // ordering: false,
+            // info: false,
+            // filter: false,
+            // scrollY: "600px",
+            // scrollCollapse: true,
+            // order: [[ 1, "desc" ]],
+            // aoColumns: [
             //     null,
             //     { "orderSequence": [ "desc", "asc" ] },
             // ],
-            // "dom": "<'row'<'col-sm-6'l><'col-sm-6'f>>t<'row'<'col-sm-6'i><'col-sm-6'p>>",
-            // "lengthMenu": [ [6, 25, 50, -1], [6, 25, 50, "All"] ],
-            "dom": "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
-            // "lengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "All"] ],
+            // lengthMenu: [ [6, 25, 50, -1], [6, 25, 50, "All"] ],
+            dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
             buttons: [
                 {
                     extend: 'excel',
@@ -370,6 +407,9 @@ foreach ($lista_top_recurrentes as $value) {
                 },
             ],
         });
+
+        /* Add event listeners to the two range filtering inputs */
+        $('#min, #max').keyup( function() { oTable.draw(); } );
 
         $('#myInputTextField').keyup(function(){
             oTable.search($(this).val()).draw() ;
