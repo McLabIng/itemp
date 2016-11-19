@@ -33,6 +33,9 @@ require_once 'clases/datos_empresa.php';
 
     <link href="css/plugins/datapicker/datepicker3.css" rel="stylesheet">
 
+    <!-- amchart-->
+    <link rel="stylesheet" href="js/plugins/amcharts/plugins/export/export.css" type="text/css" media="all" />
+
 
     <link href="css/animate.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
