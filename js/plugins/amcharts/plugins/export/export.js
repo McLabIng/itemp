@@ -2,7 +2,7 @@
 Plugin Name: amCharts Export
 Description: Adds export capabilities to amCharts products
 Author: Benjamin Maertz, amCharts
-Version: 1.4.30
+Version: 1.4.43
 Author URI: http://www.amcharts.com/
 
 Copyright 2016 amCharts
@@ -68,9 +68,10 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
  */
 ( function() {
 	AmCharts[ "export" ] = function( chart, config ) {
+		var _timer;
 		var _this = {
 			name: "export",
-			version: "1.4.30",
+			version: "1.4.43",
 			libs: {
 				async: true,
 				autoLoad: true,
@@ -79,11 +80,11 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 					"pdfmake/pdfmake.min.js": [ "pdfmake/vfs_fonts.js" ]
 				} ],
 				namespaces: {
-					"pdfmake.js": "pdfMake",
-					"jszip.js": "JSZip",
-					"xlsx.js": "XLSX",
-					"fabric.js": "fabric",
-					"FileSaver.js": "saveAs"
+					"pdfmake.min.js": "pdfMake",
+					"jszip.min.js": "JSZip",
+					"xlsx.min.js": "XLSX",
+					"fabric.min.js": "fabric",
+					"FileSaver.min.js": "saveAs"
 				},
 				loadTimeout: 10000
 			},
@@ -91,7 +92,10 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 			setup: {
 				chart: chart,
 				hasBlob: false,
-				wrapper: false
+				wrapper: false,
+				isIE: !!window.document.documentMode,
+				IEversion: window.document.documentMode,
+				hasTouch: typeof window.Touch == "object"
 			},
 			drawing: {
 				enabled: false,
@@ -241,7 +245,7 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 						}
 
 						// APPLY OPACITY ON CURRENT COLOR
-						rgba = new fabric.Color( _this.drawing.color ).getSource();
+						rgba = _this.getRGBA( _this.drawing.color );
 						rgba.pop();
 						rgba.push( _this.drawing.opacity );
 						_this.drawing.color = "rgba(" + rgba.join() + ")";
@@ -259,7 +263,7 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 								cfg.opacity = cfg.opacity || state.opacity;
 								cfg.fontSize = cfg.fontSize || cfg.width * 3;
 
-								rgba = new fabric.Color( cfg.color ).getSource();
+								rgba = _this.getRGBA( cfg.color );
 								rgba.pop();
 								rgba.push( cfg.opacity );
 								cfg.color = "rgba(" + rgba.join() + ")";
@@ -564,7 +568,8 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 				menuWalker: null,
 				fallback: true,
 				keyListener: true,
-				fileListener: true
+				fileListener: true,
+				compress: true
 			},
 
 			/**
@@ -763,6 +768,25 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 			},
 
 			/**
+			 * Referenceless copy of object type variables
+			 */
+			cloneObject: function( o ) {
+				var clone, v, k, isObject, isDate;
+				clone = Array.isArray( o ) ? [] : {};
+
+				// Walkthrough values
+				for ( k in o ) {
+					v = o[ k ];
+					isObject = typeof v === "object";
+					isDate = v instanceof Date;
+
+					// Set value; call recursivly if value is an object
+					clone[ k ] = isObject && !isDate ? _this.cloneObject( v ) : v;
+				}
+				return clone;
+			},
+
+			/**
 			 * Recursive method to merge the given objects together
 			 * Overwrite flag replaces the value instead to crawl through
 			 */
@@ -865,7 +889,7 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 						return true;
 
 						// IE 10 internal bug handling SVG images in canvas context
-					} else if ( AmCharts.isIE && AmCharts.IEversion == 10 && source.toLowerCase().indexOf( ".svg" ) != -1 ) {
+					} else if ( _this.setup.isIE && ( _this.setup.IEversion == 10 || _this.setup.IEversion == 11 ) && source.toLowerCase().indexOf( ".svg" ) != -1 ) {
 						return true;
 					}
 				}
@@ -906,7 +930,7 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 				}
 
 				// CHECK IE; ATTEMPT TO ACCESS HEAD ELEMENT
-				if ( AmCharts.isIE && AmCharts.IEversion <= 9 ) {
+				if ( _this.setup.isIE && _this.setup.IEversion <= 9 ) {
 					if ( !Array.prototype.indexOf || !document.head || _this.config.fallback === false ) {
 						return false;
 					}
@@ -1059,23 +1083,36 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 					} else {
 						var attrs = [ "fill", "stroke" ];
 						for ( i2 = 0; i2 < attrs.length; i2++ ) {
-							var attr = attrs[ i2 ]
-							var attrVal = String( childNode.getAttribute( attr ) || "none" );
+							var attr = attrs[ i2 ];
+							var attrVal = childNode.getAttribute( attr );
+							var attrRGBA = _this.getRGBA( attrVal );
+							var isHashbanged = _this.isHashbanged( attrVal );
 
-							// CHECk VALUE AGAINST BLACKLIST
-							if ( [ "none", "transparent" ].indexOf( attrVal ) == -1 && !_this.isHashbanged( attrVal ) ) {
-								var attrRGBA = fabric.Color.fromHex( attrVal ).getSource();
-
-								// ENOUGH IS ENOUGH, SOMETHING IS WRONG, LETS RESET IT
-								if ( attrRGBA === undefined ) {
-									childNode.setAttribute( attr, "none" );
-									childNode.setAttribute( attr + "-opacity", "0" );
-								}
+							// VALIDATE AND RESET UNKNOWN COLORS (avoids fabric to crash)
+							if ( attrVal && !attrRGBA && !isHashbanged ) {
+								childNode.setAttribute( attr, "none" );
+								childNode.setAttribute( attr + "-opacity", "0" );
 							}
 						}
 					}
 				}
 				return group;
+			},
+
+			/*
+			 ** GET RGBA COLOR ARRAY FROM INPUT
+			 */
+			getRGBA: function( source, returnInstance ) {
+
+				if ( source != "none" && source != "transparent" && !_this.isHashbanged( source ) ) {
+					source = new fabric.Color( source );
+
+					if ( source._source ) {
+						return returnInstance ? source : source.getSource();
+					}
+				}
+
+				return false;
 			},
 
 			/*
@@ -1219,12 +1256,21 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 					y: 0,
 					pX: 0,
 					pY: 0,
+					lX: 0,
+					lY: 0,
 					width: _this.setup.chart.divRealWidth,
 					height: _this.setup.chart.divRealHeight
 				};
 				var images = {
 					loaded: 0,
 					included: 0
+				}
+				var legends = {
+					items: [],
+					width: 0,
+					height: 0,
+					maxWidth: 0,
+					maxHeight: 0
 				}
 
 				// MODIFY FABRIC UNTIL IT'S OFFICIALLY SUPPORTED
@@ -1245,8 +1291,18 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 							y: 0
 						},
 						patterns: {},
-						clippings: {}
+						clippings: {},
+						has: {
+							legend: false,
+							panel: false,
+							scrollbar: false
+						}
 					}
+
+					// CHECK IT'S SURROUNDINGS
+					group.has.legend = _this.gatherClassName( group.parent, _this.setup.chart.classNamePrefix + "-legend-div", 1 );
+					group.has.panel = _this.gatherClassName( group.parent, _this.setup.chart.classNamePrefix + "-stock-panel-div" );
+					group.has.scrollbar = _this.gatherClassName( group.parent, _this.setup.chart.classNamePrefix + "-scrollbar-chart-div" );
 
 					// GATHER ELEMENTS
 					group = _this.gatherElements( group, cfg, images );
@@ -1256,38 +1312,77 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 				}
 
 				// GATHER EXTERNAL LEGEND
-				if ( _this.config.legend && _this.setup.chart.legend && _this.setup.chart.legend.divId ) {
-					var group = {
-						svg: _this.setup.chart.legend.container.container,
-						parent: _this.setup.chart.legend.container.container.parentNode,
-						children: _this.setup.chart.legend.container.container.getElementsByTagName( "*" ),
-						offset: {
-							x: 0,
-							y: 0
-						},
-						legend: {
-							type: [ "top", "left" ].indexOf( _this.config.legend.position ) != -1 ? "unshift" : "push",
-							position: _this.config.legend.position,
-							width: _this.config.legend.width ? _this.config.legend.width : _this.setup.chart.legend.container.width,
-							height: _this.config.legend.height ? _this.config.legend.height : _this.setup.chart.legend.container.height
-						},
-						patterns: {},
-						clippings: {}
+				if ( _this.config.legend ) {
+
+					// STOCK
+					if ( _this.setup.chart.type == "stock" ) {
+						for ( i1 = 0; i1 < _this.setup.chart.panels.length; i1++ ) {
+							if ( _this.setup.chart.panels[ i1 ].stockLegend && _this.setup.chart.panels[ i1 ].stockLegend.divId ) {
+								legends.items.push( _this.setup.chart.panels[ i1 ].stockLegend );
+							}
+						}
+
+						// NORMAL
+					} else if ( _this.setup.chart.legend && _this.setup.chart.legend.divId ) {
+						legends.items.push( _this.setup.chart.legend );
 					}
 
-					// ADAPT CANVAS DIMENSIONS
-					if ( [ "left", "right" ].indexOf( group.legend.position ) != -1 ) {
-						offset.width += group.legend.width;
-						offset.height = group.legend.height > offset.height ? group.legend.height : offset.height;
-					} else if ( [ "top", "bottom" ].indexOf( group.legend.position ) != -1 ) {
-						offset.height += group.legend.height;
+					// WALKTHROUGH
+					for ( i1 = 0; i1 < legends.items.length; i1++ ) {
+						var legend = legends.items[ i1 ];
+						var group = {
+							svg: legend.container.container,
+							parent: legend.container.container.parentNode,
+							children: legend.container.container.getElementsByTagName( "*" ),
+							offset: {
+								x: 0,
+								y: 0
+							},
+							legend: {
+								id: i1,
+								type: [ "top", "left" ].indexOf( _this.config.legend.position ) != -1 ? "unshift" : "push",
+								position: _this.config.legend.position,
+								width: _this.config.legend.width ? _this.config.legend.width : legend.container.div.offsetWidth,
+								height: _this.config.legend.height ? _this.config.legend.height : legend.container.div.offsetHeight
+							},
+							patterns: {},
+							clippings: {},
+							has: {
+								legend: false,
+								panel: false,
+								scrollbar: false
+							}
+						}
+
+						// GATHER DIMENSIONS
+						legends.width += group.legend.width;
+						legends.height += group.legend.height;
+						legends.maxWidth = group.legend.width > legends.maxWidth ? group.legend.width : legends.maxWidth;
+						legends.maxHeight = group.legend.height > legends.maxHeight ? group.legend.height : legends.maxHeight;
+
+						// GATHER ELEMENTS
+						group = _this.gatherElements( group, cfg, images );
+
+						// PRE/APPEND SVG
+						groups[ group.legend.type ]( group );
 					}
 
-					// GATHER ELEMENTS
-					group = _this.gatherElements( group, cfg, images );
+					// ADAPT WIDTH IF NEEDED; EXPAND HEIGHT
+					if ( [ "top", "bottom" ].indexOf( _this.config.legend.position ) != -1 ) {
+						offset.width = legends.maxWidth > offset.width ? legends.maxWidth : offset.width;
+						offset.height += legends.height;
 
-					// PRE/APPEND SVG
-					groups[ group.legend.type ]( group );
+						// EXPAND WIDTH; ADAPT HEIGHT IF NEEDED
+					} else if ( [ "left", "right" ].indexOf( _this.config.legend.position ) != -1 ) {
+						offset.width += legends.maxWidth;
+						offset.height = legends.height > offset.height ? legends.height : offset.height;
+
+						// SIMPLY EXPAND CANVAS
+					} else {
+						offset.height += legends.height;
+						offset.width += legends.maxWidth;
+					}
+
 				}
 
 				// CLEAR IF EXIST
@@ -1558,11 +1653,8 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 
 				for ( i1 = 0; i1 < groups.length; i1++ ) {
 					var group = groups[ i1 ];
-					var isLegend = _this.gatherClassName( group.parent, _this.setup.chart.classNamePrefix + "-legend-div", 1 );
-					var isPanel = _this.gatherClassName( group.parent, _this.setup.chart.classNamePrefix + "-stock-panel-div" );
-					var isScrollbar = _this.gatherClassName( group.parent, _this.setup.chart.classNamePrefix + "-scrollbar-chart-div" );
 
-					// STOCK CHART; SVG OFFSET;; SVG OFFSET
+					// STOCK CHART; SVG OFFSET; SVG OFFSET
 					if ( _this.setup.chart.type == "stock" && _this.setup.chart.legendSettings.position ) {
 
 						// TOP / BOTTOM
@@ -1580,12 +1672,12 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 								offset.y += _this.pxToNumber( group.parent.style.height );
 
 								// LEGEND; OFFSET
-								if ( isPanel ) {
-									offset.pY = _this.pxToNumber( isPanel.style.marginTop );
+								if ( group.has.panel ) {
+									offset.pY = _this.pxToNumber( group.has.panel.style.marginTop );
 									group.offset.y += offset.pY;
 
 									// SCROLLBAR; OFFSET
-								} else if ( isScrollbar ) {
+								} else if ( group.has.scrollbar ) {
 									group.offset.y += offset.pY;
 								}
 							}
@@ -1596,17 +1688,18 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 							group.offset.x = _this.pxToNumber( group.parent.style.left ) + offset.pX;
 
 							// LEGEND; OFFSET
-							if ( isLegend ) {
-								offset.pY += _this.pxToNumber( isPanel.style.height ) + _this.setup.chart.panelsSettings.panelSpacing;
+							if ( group.has.legend ) {
+								offset.pY += _this.pxToNumber( group.has.panel.style.height ) + _this.setup.chart.panelsSettings.panelSpacing;
 
 								// SCROLLBAR; OFFSET
-							} else if ( isScrollbar ) {
+							} else if ( group.has.scrollbar ) {
 								group.offset.y -= _this.setup.chart.panelsSettings.panelSpacing;
 							}
 						}
 
 						// REGULAR CHARTS; SVG OFFSET
 					} else {
+
 						// POSITION; ABSOLUTE
 						if ( group.parent.style.position == "absolute" ) {
 							group.offset.absolute = true;
@@ -1628,14 +1721,18 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 							// EXTERNAL LEGEND
 							if ( group.legend ) {
 								if ( group.legend.position == "left" ) {
-									offset.x += group.legend.width;
+									offset.x = legends.maxWidth;
 								} else if ( group.legend.position == "right" ) {
-									group.offset.x += offset.width - group.legend.width;
+									group.offset.x = offset.width - legends.maxWidth;
 								} else if ( group.legend.position == "top" ) {
 									offset.y += group.legend.height;
 								} else if ( group.legend.position == "bottom" ) {
-									group.offset.y += offset.height - group.legend.height; // OFFSET.Y
+									group.offset.y = offset.height - legends.height;
 								}
+
+								// STACK LEGENDS
+								group.offset.y += offset.lY;
+								offset.lY += group.legend.height;
 
 								// NORMAL
 							} else {
@@ -1646,9 +1743,9 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 						}
 
 						// PANEL OFFSET (STOCK CHARTS)
-						if ( isLegend && isPanel && isPanel.style.marginTop ) {
-							offset.y += _this.pxToNumber( isPanel.style.marginTop );
-							group.offset.y += _this.pxToNumber( isPanel.style.marginTop );
+						if ( group.has.legend && group.has.panel && group.has.panel.style.marginTop ) {
+							offset.y += _this.pxToNumber( group.has.panel.style.marginTop );
+							group.offset.y += _this.pxToNumber( group.has.panel.style.marginTop );
 
 							// GENERAL LEFT / RIGHT POSITION
 						} else if ( _this.setup.chart.legend && [ "left", "right" ].indexOf( _this.setup.chart.legend.position ) != -1 ) {
@@ -1872,7 +1969,9 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 									isCoreElement: true
 								} );
 
-								_this.setup.fabric.add( fabric_label );
+								if ( !group.has.scrollbar ) {
+									_this.setup.fabric.add( fabric_label );
+								}
 							}
 
 							groups.pop();
@@ -1907,27 +2006,26 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 						obj.clipPath = clipPath;
 						obj.svg = svg;
 
-						// HIDE HIDDEN ELEMENTS; TODO: FIND A BETTER WAY TO HANDLE THAT
-						if ( visibility == "hidden" ) {
-							obj.opacity = 0;
+						// TRANSPORT FILL/STROKE OPACITY
+						var attrs = [ "fill", "stroke" ];
+						for ( i1 = 0; i1 < attrs.length; i1++ ) {
+							var attr = attrs[ i1 ]
+							var attrVal = String( svg.getAttribute( attr ) || "none" );
+							var attrOpacity = Number( svg.getAttribute( attr + "-opacity" ) || "1" );
+							var attrRGBA = _this.getRGBA( attrVal );
 
-							// WALKTHROUGH ELEMENTS
-						} else {
+							// HIDE HIDDEN ELEMENTS; TODO: FIND A BETTER WAY TO HANDLE THAT
+							if ( visibility == "hidden" ) {
+								obj.opacity = 0;
+								attrOpacity = 0;
+							}
 
-							// TRANSPORT FILL/STROKE OPACITY
-							var attrs = [ "fill", "stroke" ];
-							for ( i1 = 0; i1 < attrs.length; i1++ ) {
-								var attr = attrs[ i1 ]
-								var attrVal = String( svg.getAttribute( attr ) || "none" );
-								var attrOpacity = Number( svg.getAttribute( attr + "-opacity" ) || "1" );
-								var attrRGBA = fabric.Color.fromHex( attrVal ).getSource();
-
-								if ( attrRGBA ) {
-									attrRGBA.pop();
-									attrRGBA.push( attrOpacity )
-									obj[ attr ] = "rgba(" + attrRGBA.join() + ")";
-									obj[ attr + _this.capitalize( "opacity" ) ] = attrOpacity;
-								}
+							// SET COLOR
+							if ( attrRGBA ) {
+								attrRGBA.pop();
+								attrRGBA.push( attrOpacity )
+								obj[ attr ] = "rgba(" + attrRGBA.join() + ")";
+								obj[ attr + _this.capitalize( "opacity" ) ] = attrOpacity;
 							}
 						}
 
@@ -1946,6 +2044,7 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 				}, options || {} );
 				var data = _this.setup.canvas;
 
+				// TRIGGER CALLBACK
 				_this.handleCallback( callback, data, cfg );
 
 				return data;
@@ -2008,6 +2107,7 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 					} );
 				}
 
+				// TRIGGER CALLBACK
 				_this.handleCallback( callback, data, cfg );
 
 				return data;
@@ -2025,6 +2125,7 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 				cfg.format = cfg.format.toLowerCase();
 				var data = _this.setup.fabric.toDataURL( cfg );
 
+				// TRIGGER CALLBACK
 				_this.handleCallback( callback, data, cfg );
 
 				return data;
@@ -2041,6 +2142,7 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 				}, options || {} );
 				var data = _this.setup.fabric.toDataURL( cfg );
 
+				// TRIGGER CALLBACK
 				_this.handleCallback( callback, data, cfg );
 
 				return data;
@@ -2052,6 +2154,7 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 			toSVG: function( options, callback ) {
 				var clipPaths = [];
 				var cfg = _this.deepMerge( {
+					compress: _this.config.compress,
 					reviver: function( string, clipPath ) {
 						var matcher = new RegExp( /\bstyle=(['"])(.*?)\1/ );
 						var match = matcher.exec( string )[ 0 ].slice( 7, -1 );
@@ -2066,8 +2169,8 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 								var value = pair[ 1 ];
 
 								if ( [ "fill", "stroke" ].indexOf( key ) != -1 ) {
-									value = fabric.Color.fromRgba( value );
-									if ( value && value._source ) {
+									value = _this.getRGBA( value, true );
+									if ( value ) {
 										var color = "#" + value.toHex();
 										var opacity = value._source[ 3 ];
 
@@ -2114,10 +2217,16 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 					data = start + clipPaths.join( "" ) + end;
 				}
 
+				// SOLVES #21840
+				if ( cfg.compress ) {
+					data = data.replace( /[\t\r\n]+/g, "" );
+				}
+
 				if ( cfg.getBase64 ) {
 					data = "data:image/svg+xml;base64," + btoa( data );
 				}
 
+				// TRIGGER CALLBACK
 				_this.handleCallback( callback, data, cfg );
 
 				return data;
@@ -2235,6 +2344,7 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 				var data = _this.toImage( cfg );
 				var states = [];
 				var items = document.body.childNodes;
+				var scroll = document.documentElement.scrollTop || document.body.scrollTop;
 
 				data.setAttribute( "style", "width: 100%; max-height: 100%;" );
 
@@ -2255,6 +2365,9 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 						}
 					}
 					document.body.removeChild( data );
+					document.documentElement.scrollTop = document.body.scrollTop = scroll;
+
+					// TRIGGER CALLBACK
 					_this.handleCallback( callback, data, cfg );
 				}, cfg.delay );
 
@@ -2268,9 +2381,15 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 				var cfg = _this.deepMerge( {
 					dateFormat: _this.config.dateFormat || "dateObject",
 				}, options || {}, true );
-				cfg.data = cfg.data ? cfg.data : _this.getChartData( cfg );
-				var data = JSON.stringify( cfg.data, undefined, "\t" );
+				var data = {};
 
+				// GATHER DATA
+				cfg.data = cfg.data !== undefined ? cfg.data : _this.getChartData( cfg );
+
+				// STRINGIFY DATA
+				data = JSON.stringify( cfg.data, undefined, "\t" );
+
+				// TRIGGER CALLBACK
 				_this.handleCallback( callback, data, cfg );
 
 				return data;
@@ -2282,56 +2401,25 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 			toCSV: function( options, callback ) {
 				var row, col;
 				var cfg = _this.deepMerge( {
-					data: _this.getChartData( options ),
 					delimiter: ",",
 					quotes: true,
 					escape: true,
 					withHeader: true
 				}, options || {}, true );
-				var data = "";
-				var cols = [];
 				var buffer = [];
+				var data = "";
 
-				function enchant( value, column ) {
+				// GATHER DATA
+				buffer = _this.toArray( cfg );
 
-					// WRAP IN QUOTES
-					if ( typeof value === "string" ) {
-						if ( cfg.escape ) {
-							value = value.replace( '"', '""' );
-						}
-						if ( cfg.quotes ) {
-							value = [ '"', value, '"' ].join( "" );
-						}
-					}
-
-					return value;
-				}
-
-				// HEADER
-				for ( value in cfg.data[ 0 ] ) {
-					buffer.push( enchant( value ) );
-					cols.push( value );
-				}
-				if ( cfg.withHeader ) {
-					data += buffer.join( cfg.delimiter ) + "\n";
-				}
-
-				// BODY
-				for ( row in cfg.data ) {
-					buffer = [];
+				// MERGE
+				for ( row in buffer ) {
 					if ( !isNaN( row ) ) {
-						for ( col in cols ) {
-							if ( !isNaN( col ) ) {
-								var column = cols[ col ];
-								var value = cfg.data[ row ][ column ];
-
-								buffer.push( enchant( value, column ) );
-							}
-						}
-						data += buffer.join( cfg.delimiter ) + "\n";
+						data += buffer[ row ].join( cfg.delimiter ) + "\n";
 					}
 				}
 
+				// TRIGGER CALLBACK
 				_this.handleCallback( callback, data, cfg );
 
 				return data;
@@ -2347,13 +2435,15 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 					withHeader: true,
 					stringify: false
 				}, options || {}, true );
+				var buffer = [];
 				var data = "";
 				var wb = {
 					SheetNames: [],
 					Sheets: {}
 				}
 
-				cfg.data = cfg.data ? cfg.data : _this.getChartData( cfg );
+				// GATHER DATA
+				buffer = _this.toArray( cfg );
 
 				function datenum( v, date1904 ) {
 					if ( date1904 ) v += 1462;
@@ -2405,7 +2495,7 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 				}
 
 				wb.SheetNames.push( cfg.name );
-				wb.Sheets[ cfg.name ] = sheet_from_array_of_arrays( _this.toArray( cfg ) );
+				wb.Sheets[ cfg.name ] = sheet_from_array_of_arrays( buffer );
 
 				data = XLSX.write( wb, {
 					bookType: "xlsx",
@@ -2415,6 +2505,7 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 
 				data = "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64," + data;
 
+				// TRIGGER CALLBACK
 				_this.handleCallback( callback, data, cfg );
 
 				return data;
@@ -2426,24 +2517,69 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 			toArray: function( options, callback ) {
 				var row, col;
 				var cfg = _this.deepMerge( {
-					data: _this.getChartData( options ),
 					withHeader: false,
-					stringify: true
+					stringify: true,
+					escape: false,
+					quotes: false
 				}, options || {}, true );
 				var data = [];
 				var cols = [];
+				var buffer = [];
+				var _processData = _this.config.processData;
+
+				// RETRIEVES RIGHT FIELD ORDER OF TRANSLATED FIELDS
+				function processData( data, cfg ) {
+					var fields = cfg.exportFields || Object.keys( cfg.dataFieldsMap );
+
+					// WALKTHROUGH FIELDS
+					for ( col = 0; col < fields.length; col++ ) {
+						var key = fields[ col ];
+						var field = cfg.dataFieldsTitlesMap[ key ];
+						cols.push( field );
+					}
+
+					// TRIGGER GIVEN CALLBACK
+					if ( _processData ) {
+						return _this.handleCallback( _processData, data, cfg );
+					}
+					return data;
+				}
+
+				// STRING PROCESSOR
+				function enchant( value ) {
+
+					if ( typeof value === "string" ) {
+						if ( cfg.escape ) {
+							value = value.replace( '"', '""' );
+						}
+						if ( cfg.quotes ) {
+							value = [ '"', value, '"' ].join( "" );
+						}
+					}
+
+					return value;
+				}
+
+				// INVOKE PROCESS DATA
+				cfg.processData = processData;
+
+				// GET DATA
+				cfg.data = cfg.data !== undefined ? cfg.data : _this.getChartData( cfg );
 
 				// HEADER
-				for ( col in cfg.data[ 0 ] ) {
-					cols.push( col );
-				}
 				if ( cfg.withHeader ) {
-					data.push( cols );
+					buffer = [];
+					for ( col in cols ) {
+						if ( !isNaN( col ) ) {
+							buffer.push( enchant( cols[ col ] ) );
+						}
+					}
+					data.push( buffer );
 				}
 
 				// BODY
 				for ( row in cfg.data ) {
-					var buffer = [];
+					buffer = [];
 					if ( !isNaN( row ) ) {
 						for ( col in cols ) {
 							if ( !isNaN( col ) ) {
@@ -2456,13 +2592,14 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 								} else {
 									value = value;
 								}
-								buffer.push( value );
+								buffer.push( enchant( value ) );
 							}
 						}
 						data.push( buffer );
 					}
 				}
 
+				// TRIGGER CALLBACK
 				_this.handleCallback( callback, data, cfg );
 
 				return data;
@@ -2545,6 +2682,7 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 					return arr
 				}
 
+				// TRIGGER CALLBACK
 				_this.handleCallback( callback, data, cfg );
 
 				return data;
@@ -2662,6 +2800,7 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 				}, options || {}, true );
 				var uid, i1, i2, i3;
 				var lookupFields = [ "valueField", "openField", "closeField", "highField", "lowField", "xField", "yField" ];
+				var buffer;
 
 				// HANDLE FIELDS
 				function addField( field, title, type ) {
@@ -2682,9 +2821,10 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 				}
 
 				if ( cfg.data.length == 0 ) {
+
 					// STOCK DATA; GATHER COMPARED GRAPHS
 					if ( _this.setup.chart.type == "stock" ) {
-						cfg.data = _this.setup.chart.mainDataSet.dataProvider;
+						cfg.data = _this.cloneObject( _this.setup.chart.mainDataSet.dataProvider );
 
 						// CATEGORY AXIS
 						addField( _this.setup.chart.mainDataSet.categoryField );
@@ -2707,19 +2847,35 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 							}
 						}
 
-						// WALKTHROUGH COMPARISON AND MERGE IT'S DATA
-						for ( i1 = 0; i1 < _this.setup.chart.comparedGraphs.length; i1++ ) {
-							var graph = _this.setup.chart.comparedGraphs[ i1 ];
-							for ( i2 = 0; i2 < graph.dataSet.dataProvider.length; i2++ ) {
-								for ( i3 = 0; i3 < graph.dataSet.fieldMappings.length; i3++ ) {
-									var fieldMap = graph.dataSet.fieldMappings[ i3 ];
-									var uid = graph.dataSet.id + "_" + fieldMap.toField;
+						// MERGE DATA OF COMPARED GRAPHS IN RIGHT PLACE
+						if ( _this.setup.chart.comparedGraphs.length ) {
 
-									if ( i2 < cfg.data.length ) {
-										cfg.data[ i2 ][ uid ] = graph.dataSet.dataProvider[ i2 ][ fieldMap.fromField ];
+							// BUFFER DATES FROM MAIN DATA SET
+							buffer = [];
+							for ( i1 = 0; i1 < cfg.data.length; i1++ ) {
+								buffer.push( cfg.data[ i1 ][ _this.setup.chart.mainDataSet.categoryField ] );
+							}
 
-										if ( !cfg.titles[ uid ] ) {
-											addField( uid, graph.dataSet.title )
+							// WALKTHROUGH COMPARISON AND MERGE IT'S DATA
+							for ( i1 = 0; i1 < _this.setup.chart.comparedGraphs.length; i1++ ) {
+								var graph = _this.setup.chart.comparedGraphs[ i1 ];
+								for ( i2 = 0; i2 < graph.dataSet.dataProvider.length; i2++ ) {
+									var categoryField = graph.dataSet.categoryField;
+									var categoryValue = graph.dataSet.dataProvider[ i2 ][ categoryField ];
+									var comparedIndex = buffer.indexOf( categoryValue );
+
+									// PLACE IN RIGHT PLACE
+									if ( comparedIndex != -1 ) {
+										for ( i3 = 0; i3 < graph.dataSet.fieldMappings.length; i3++ ) {
+											var fieldMap = graph.dataSet.fieldMappings[ i3 ];
+											var uid = graph.dataSet.id + "_" + fieldMap.toField;
+
+											cfg.data[ comparedIndex ][ uid ] = graph.dataSet.dataProvider[ i2 ][ fieldMap.fromField ];
+
+											// UNIQUE TITLE
+											if ( !cfg.titles[ uid ] ) {
+												addField( uid, graph.dataSet.title )
+											}
 										}
 									}
 								}
@@ -2860,6 +3016,7 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 					dateFields: [],
 					dataFields: [],
 					dataFieldsMap: {},
+					dataFieldsTitlesMap: {},
 					dataDateFormat: _this.setup.chart.dataDateFormat,
 					dateFormat: _this.config.dateFormat || _this.setup.chart.dataDateFormat || "YYYY-MM-DD",
 					exportTitles: _this.config.exportTitles,
@@ -2883,8 +3040,8 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 
 					// REMOVE FIELDS SELECTIVELY
 					if ( cfg.exportFields !== undefined ) {
-						cfg.dataFields = cfg.dataFields.filter( function( n ) {
-							return cfg.exportFields.indexOf( n ) != -1;
+						cfg.dataFields = cfg.exportFields.filter( function( n ) {
+							return cfg.dataFields.indexOf( n ) != -1;
 						} );
 					}
 
@@ -2898,6 +3055,8 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 							var dataField = cfg.dataFieldsMap[ uniqueField ];
 							var title = ( cfg.columnNames && cfg.columnNames[ uniqueField ] ) || cfg.titles[ uniqueField ] || uniqueField;
 							var value = cfg.data[ i1 ][ dataField ];
+
+							// SKIP NULL ONES
 							if ( value == null ) {
 								value = undefined;
 							}
@@ -2939,6 +3098,8 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 								}
 							}
 
+							cfg.dataFieldsTitlesMap[ dataField ] = title;
+
 							tmp[ title ] = value;
 						}
 						if ( !skip ) {
@@ -2967,6 +3128,7 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 			 */
 			createMenu: function( list, container ) {
 				var div;
+				var buffer = [];
 
 				function buildList( list, container ) {
 					var i1, i2, ul = document.createElement( "ul" );
@@ -3111,9 +3273,7 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 									return function() {
 										if ( item.capture || item.action == "print" || item.format == "PRINT" ) {
 											this.capture( item, function() {
-												if ( this.config.drawing.autoClose ) {
-													this.drawing.handler.done();
-												}
+												this.drawing.handler.done();
 												this[ "to" + item.format ]( item, function( data ) {
 													if ( item.action == "download" ) {
 														this.download( data, item.mimeType, [ item.fileName, item.extension ].join( "." ) );
@@ -3159,6 +3319,87 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 						} )( item.click || function( e ) {
 							e.preventDefault();
 						}, item ) );
+
+						// ENABLE MANUAL ACTIVE STATE ON TOUCH DEVICES
+						if ( _this.setup.hasTouch && li.classList ) {
+							a.addEventListener( "click", ( function( item ) {
+								return function( e ) {
+									e.preventDefault();
+									var li = item.elements.li;
+									var parentIsActive = hasActiveParent( li );
+									var siblingIsActive = hasActiveSibling( li );
+									var childHasSubmenu = hasSubmenu( li );
+
+									// CHECK IF PARENT IS ACTIVE
+									function hasActiveParent( elm ) {
+										var parentNode = elm.parentNode.parentNode;
+										var classList = parentNode.classList;
+
+										if ( parentNode.tagName == "LI" && classList.contains( "active" ) ) {
+											return true;
+										}
+										return false;
+									}
+
+									// CHECK IF ANY SIBLING IS ACTIVE
+									function hasActiveSibling( elm ) {
+										var siblings = elm.parentNode.children;
+
+										for ( i1 = 0; i1 < siblings.length; i1++ ) {
+											var sibling = siblings[ i1 ];
+											var classList = sibling.classList;
+											if ( sibling !== elm && classList.contains( "active" ) ) {
+												classList.remove( "active" );
+												return true;
+											}
+										}
+
+										return false;
+									}
+
+									// CHECK IF SUBEMNU EXIST
+									function hasSubmenu( elm ) {
+										return elm.getElementsByTagName( "ul" ).length > 0;
+									}
+
+									// CHECK FOR ROOT ITEMS
+									function isRoot( elm ) {
+										return elm.classList.contains( "export-main" ) || elm.classList.contains( "export-drawing" );
+									}
+
+									// TOGGLE MAIN MENU
+									if ( isRoot( li ) || !childHasSubmenu ) {
+										_this.setup.menu.classList.toggle( "active" );
+									}
+
+									// UNTOGGLE BUFFERED ITEMS
+									if ( !parentIsActive || !childHasSubmenu ) {
+										while ( buffer.length ) {
+											var tmp = buffer.pop();
+											var tmpRoot = isRoot( tmp );
+											var tmpOdd = tmp !== li;
+
+											if ( tmpRoot ) {
+												if ( !childHasSubmenu ) {
+													tmp.classList.remove( "active" );
+												}
+											} else if ( tmpOdd ) {
+												tmp.classList.remove( "active" );
+											}
+										}
+									}
+
+									// BUFFER ITEMS
+									buffer.push( li );
+
+									// TOGGLE CLASS
+									if ( childHasSubmenu ) {
+										li.classList.toggle( "active" );
+									}
+								}
+							} )( item ) );
+						}
+
 						li.appendChild( a );
 
 						// ADD LABEL
@@ -3419,11 +3660,11 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
 			 * Initiate export menu; waits for chart container to place menu
 			 */
 			init: function() {
-				clearTimeout( _this.timer );
+				clearTimeout( _timer );
 
-				_this.timer = setInterval( function() {
+				_timer = setInterval( function() {
 					if ( _this.setup.chart.containerDiv ) {
-						clearTimeout( _this.timer );
+						clearTimeout( _timer );
 
 						if ( _this.config.enabled ) {
 							// CREATE REFERENCE
@@ -3594,5 +3835,4 @@ if ( !AmCharts.translations[ "export" ][ "en" ] ) {
  */
 AmCharts.addInitHandler( function( chart ) {
 	new AmCharts[ "export" ]( chart );
-
 }, [ "pie", "serial", "xy", "funnel", "radar", "gauge", "stock", "map", "gantt" ] );
