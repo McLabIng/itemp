@@ -139,9 +139,9 @@ class vw_historial {
         <div class="form-group col-md-offset-4" id="data">
             <label class="font-noraml">Seleccione rango de fechas de ingreso de solicitud a filtrar</label>
             <div class="input-daterange input-group" id="datepicker">
-                <input type="text" class="input-sm form-control" name="min" id="min" value="'.$fecha_a.'"/>
+                <input type="text" onChange="changeZoomDates()" class="input-sm form-control" name="min" id="min" value="'.$fecha_a.'"/>
                 <span class="input-group-addon">al</span>
-                <input type="text" class="input-sm form-control" name="max" id="max" value="'.$fecha_b.'" />
+                <input type="text" onChange="changeZoomDates()" class="input-sm form-control" name="max" id="max" value="'.$fecha_b.'" />
             </div>
         </div>';
         ?>

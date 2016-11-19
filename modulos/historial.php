@@ -141,6 +141,7 @@ foreach ($lista_top_recurrentes as $value) {
 
 
     AmCharts.ready(function () {
+
         // SERIAL CHART
         chart = new AmCharts.AmSerialChart();
 
@@ -313,19 +314,33 @@ foreach ($lista_top_recurrentes as $value) {
         chartScrollbar.color = "#AAAAAA";
         chart.addChartScrollbar(chartScrollbar);
 
-        function zoomChart() {
-            // different zoom methods can be used - zoomToIndexes, zoomToDates, zoomToCategoryValues
-            // chart.zoomToIndexes(chartData.length - 40, chartData.length - 1);
-            chart.zoomToIndexes(<?php echo count($datos_sitio)-$show;?>, <?php echo count($datos_sitio).')';?>;
-            // chart.zoomToDates(new Date(2016-06-15, 0), new Date(2016-06-20, 0));
-        }
-
         // WRITE
         chart.write("chartdiv");
     });
-</script>
 
-<script>
+    function zoomChart() {
+        // different zoom methods can be used - zoomToIndexes, zoomToDates, zoomToCategoryValues
+        // chart.zoomToIndexes(chartData.length - 40, chartData.length - 1);
+        chart.zoomToIndexes(<?php echo count($datos_sitio)-$show;?>, <?php echo count($datos_sitio).')';?>;
+        // chart.zoomToDates(new Date(2016-06-15, 0), new Date(2016-06-20, 0));
+    }
+
+    // this method converts string from input fields to date object
+    function stringToDate(str) {
+        var dArr = str.split("-");
+        var date = new Date(Number(dArr[2]), Number(dArr[1]) - 1, dArr[0]);
+        return date;
+    }
+
+    // this method is called when user changes dates in the input field
+    function changeZoomDates() {
+        var startDateString = document.getElementById("min").value;
+        var endDateString = document.getElementById("max").value;
+        var startDate = stringToDate(startDateString);
+        var endDate = stringToDate(endDateString);
+        chart.zoomToDates(startDate, endDate);
+    }
+
     /* Función para el filtro de fechas */
     jQuery.fn.dataTableExt.afnFiltering.push(
         function( oSettings, aData, iDataIndex ) {
