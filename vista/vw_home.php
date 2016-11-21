@@ -1,13 +1,13 @@
 <?php
 class vw_home {
 
-    public static function lista_top_recurrentes($lista_tipo_rectificador){
+    public static function lista_top_recurrentes(){
         $lista_top_recurrentes = vm_grafico_temperaturas::traer_temperaturas();
         $listado_sitios = sitios_temperatura::traer_sitios_totales();
         ?>
         <div class="ibox-title col-md-12 ui-widget-header blue-bg">
             <?php
-            vw_home::agregar_sitio($lista_tipo_rectificador);
+            vw_home::agregar_sitio();
             ?>
             <!-- <button class="pull-right btn btn-md btn-primary"><i class="fa fa-file-excel-o"></i></button> -->
             <input class="pull-right" type="text" id="myInputTextField" placeholder=" BUSCAR">
@@ -96,10 +96,11 @@ class vw_home {
                     // }
 
                     // echo $segunda_columna;
+                    $comilla = "'";
 
                 echo '  <tr id="sitio-'.$resultado['COD_SITIO'].'">';
                     echo '  <td class="col-md-4 col-xs-5">
-                                <a data-toggle="tab" href="#sitio'.$resultado['COD_SITIO'].'"><h4><strong>'.$resultado['NOMBRE_SITIO'].'</strong></a>
+                                <a data-toggle="tab" href="#sitio'.$resultado['COD_SITIO'].'" onclick="makeCharts('.$comilla.'chartData_'.$resultado['COD_SITIO'].''.$comilla.');"><h4><strong>'.$resultado['NOMBRE_SITIO'].'</strong></a>
                                 <br/>
                                 <h5 class="text-gray">'.$resultado['SITIO'].'<!--label class="label '.$label_gabinete.' pull-right">'.$ubicacion.'</label--></h5>
                                 <br/>
@@ -207,7 +208,7 @@ class vw_home {
         // echo '  <a class="btn btn-success btn-outline btn-xs" href="?mod=historial&sitio='.$dato['COD_SITIO'].'"><i class="fa fa-search"></i>&nbsp;Ver</a>';
     }
 
-    public static function agregar_sitio(array $lista_tipo_rectificador){
+    public static function agregar_sitio(){
         ?>
         <a href="#modal-agregar-sitio"  data-toggle="modal" class="btn btn-primary btn-sm pull-right m-l-sm">Agregar Sitio</a>
         <!--- MODAL -->
