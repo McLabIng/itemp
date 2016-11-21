@@ -335,7 +335,23 @@ foreach ($lista_top_recurrentes as $value) {
     // this method is called when user changes dates in the input field
     function changeZoomDates() {
         var startDateString = document.getElementById("min").value;
-        var endDateString = document.getElementById("max").value;
+        var iMaxim = document.getElementById("max").value;
+
+        var iMaximo_year = iMaxim.substring(6,10);
+        var iMaximo_month = iMaxim.substring(3,5);
+        var iMaximo_day = iMaxim.substring(0,2);
+        var iMaximo = iMaximo_month.concat('/',iMaximo_day,'/',iMaximo_year);
+
+        var iMax = new Date(iMaximo);
+
+        iMax.setDate(iMax.getDate() + 1);
+
+        var iMax_day = iMax.getDate();
+        var iMax_month = iMax.getMonth() + 1;
+        var iMax_year = iMax.getFullYear();
+
+        var endDateString = iMax_day + '-' + iMax_month + '-' + iMax_year;
+
         var startDate = stringToDate(startDateString);
         var endDate = stringToDate(endDateString);
         chart.zoomToDates(startDate, endDate);
