@@ -79,12 +79,12 @@ class vm_grafico_temperaturas {
         $conexion = new Conexion();
 
         $consulta = $conexion->prepare(' SELECT
-                    S.SITIO, S.NOMBRE_SITIO, H.FECHA, H.TEMP_DUW_1, H.TEMP_DUW_2, H.TEMP_RECTIFICADOR, H.TEMP_WISE
+                    S.SITIO, S.NOMBRE_SITIO, H.FECHA, H.TEMP_DUW_1, H.TEMP_DUW_2, H.TEMP_RECTIFICADOR, H.TEMP_WISE, H.ALARMADO
                     FROM '.self::TABLA_2.' H, '.self::TABLA_1.' S
                     WHERE H.COD_SITIO = :cod_sitio AND 
                     S.COD_SITIO = H.COD_SITIO
                     ORDER BY
-                    H.FECHA ASC  ');
+                    H.FECHA DESC  ');
         $consulta->bindParam(':cod_sitio', $cod_sitio, PDO::PARAM_INT);
         $consulta->execute();
         $registros = $consulta->fetchAll();

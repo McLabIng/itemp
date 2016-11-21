@@ -162,7 +162,13 @@ class vw_historial {
                     <?php
                         foreach($lista_top_recurrentes as $resultado):
                             $fecha_ingreso = date("d-m-Y H:i:s", strtotime($resultado['FECHA']));
-                            echo '  <tr>';
+                            if ($resultado['ALARMADO'] == 1) {
+                                $color_bg = 'style="background-color: #ed5565; color: white"';
+                            } else {
+                                $color_bg = '';
+                            }
+
+                            echo '  <tr '.$color_bg.'>';
                                 echo '  <td class="col-md-2">'.$resultado['SITIO'].'</td>';
                                 echo '  <td class="col-md-3">'.$resultado['NOMBRE_SITIO'].'</td>';
                                 echo '  <td class="col-md-3">'.$fecha_ingreso.'</td>';
