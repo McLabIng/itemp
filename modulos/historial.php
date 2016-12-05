@@ -18,7 +18,7 @@ $show = 48; // Numero de datos para mostrar en filtro.
 
 $sitio = vm_grafico_temperaturas::traer_temperatura_sitio($cod_sitio);
 foreach($sitio as $rows){ 
-    $datos[] = array($rows['COD_SITIO'],$rows['FECHA'],$rows['TEMP_DUW_1'],$rows['TEMP_DUW_2'],$rows['TEMP_RECTIFICADOR'],$rows['TEMP_WISE'],$rows['ALARMADO']);
+    $datos[] = array($rows['COD_SITIO'],$rows['FECHA'],$rows['TEMP_DUW_1'],$rows['TEMP_DUW_2'],$rows['TEMP_RECTIFICADOR'],$rows['TEMP_WISE'],$rows['ALARMADO'],$rows['TEMP_SET']);
 }
 
 $codigo_sitio = $sitio['COD_SITIO'];
@@ -130,7 +130,11 @@ foreach ($lista_top_recurrentes as $value) {
 
 <!--##### Gráficos #####-->    
 <script>
-    var alerta = 50;
+<?php foreach($datos as $key){
+    echo'
+    var alerta = '.$key[7].';';
+}
+?>
     var graph;
     var chart;
     var chartData = [

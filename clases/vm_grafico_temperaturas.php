@@ -46,7 +46,7 @@ class vm_grafico_temperaturas {
         $conexion = new Conexion();
 
         $consulta = $conexion->prepare(' SELECT
-                    S.COD_SITIO, S.SITIO, S.NOMBRE_SITIO, S.IP, S.TEMP_DUW_1, S.TEMP_DUW_2, S.TEMP_RECTIFICADOR, S.TEMP_WISE
+                    S.COD_SITIO, S.SITIO, S.NOMBRE_SITIO, S.IP, S.TEMP_DUW_1, S.TEMP_DUW_2, S.TEMP_RECTIFICADOR, S.TEMP_WISE, S.TEMP_SET
                     FROM '.self::TABLA_1.' S
                     WHERE
                     S.COD_SITIO = :cod_sitio
